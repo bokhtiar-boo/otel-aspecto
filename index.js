@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./newrelic');
 const { initializeOpenTelemetry } = require('./opentelemetry');
 
 initializeOpenTelemetry().then(async () => {

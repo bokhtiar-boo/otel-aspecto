@@ -7,7 +7,6 @@ const { registerInstrumentations } = require('@opentelemetry/instrumentation');
 
 // instrumentation libraries
 const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
-const { ExpressInstrumentation } = require('opentelemetry-instrumentation-express');
 const { MongooseInstrumentation } = require('@opentelemetry/instrumentation-mongoose');
 const axios = require('axios');
 
@@ -36,14 +35,12 @@ const fetchInstanceId = async () => {
 	return _instanceId || 'localhost';
 };
 
-const serviceName = 'express-mongo-aspecto';
-
-async function createTracerProvider(serviceName) {
+async function createTracerProvider() {
 	const _instanceId = await fetchInstanceId();
 
 	const provider = new NodeTracerProvider({
 		resource: new Resource({
-			[SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+			[SemanticResourceAttributes.SERVICE_NAME]: process.env.SERVICE_NAME,
 			[SemanticResourceAttributes.SERVICE_INSTANCE_ID]: _instanceId,
 		}),
 	});
@@ -52,38 +49,43 @@ async function createTracerProvider(serviceName) {
 }
 
 const initializeOpenTelemetry = async () => {
-	const provider = await createTracerProvider(serviceName);
-	provider.register();
-	provider.addSpanProcessor(
-		new BatchSpanProcessor(
-			new OTLPTraceExporter({
-				url: 'https://otelcol.aspecto.io/v1/traces',
-				headers: {
-					Authorization: process.env.ASPECTO_API_KEY,
-				},
-			})
-		)
-	);
-	registerInstrumentations({
-		instrumentations: [
-			getNodeAutoInstrumentations({
-				// some instrumentation is noisy and commonly not useful
-				'@opentelemetry/instrumentation-fs': {
-					enabled: false,
-				},
-				'@opentelemetry/instrumentation-net': {
-					enabled: false,
-				},
-				'@opentelemetry/instrumentation-dns': {
-					enabled: false,
-				},
-				'@opentelemetry/instrumentation-express': {
-					enabled: false,
-				},
-			}),
-			new MongooseInstrumentation({ suppressInternalInstrumentation: true }),
-		],
-	});
+	try {
+		const provider = await createTracerProvider();
+		provider.register();
+		provider.addSpanProcessor(
+			new BatchSpanProcessor(
+				new OTLPTraceExporter({
+					url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+					headers: {
+						'api-key': process.env.NEW_RELIC_LICENSE_KEY,
+					},
+				})
+			)
+		);
+		registerInstrumentations({
+			instrumentations: [
+				getNodeAutoInstrumentations({
+					// Some instrumentation is noisy and commonly not useful
+					'@opentelemetry/instrumentation-fs': {
+						enabled: false,
+					},
+					'@opentelemetry/instrumentation-net': {
+						enabled: false,
+					},
+					'@opentelemetry/instrumentation-dns': {
+						enabled: false,
+					},
+					'@opentelemetry/instrumentation-express': {
+						enabled: false,
+					},
+				}),
+				new MongooseInstrumentation({ suppressInternalInstrumentation: true }),
+			],
+		});
+		console.log('OpenTelemetry initialized successfully');
+	} catch (error) {
+		console.error('Error initializing OpenTelemetry:', error);
+	}
 };
 
 module.exports = {
