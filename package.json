@@ -1,0 +1,28 @@
+{
+  "name": "otel-aspecto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.47.1",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.52.0",
+    "@opentelemetry/instrumentation": "^0.52.0",
+    "@opentelemetry/instrumentation-mongoose": "^0.39.0",
+    "@opentelemetry/resources": "^1.25.0",
+    "@opentelemetry/sdk-trace-base": "^1.25.0",
+    "@opentelemetry/sdk-trace-node": "^1.25.0",
+    "@opentelemetry/semantic-conventions": "^1.25.0",
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^6.13.0",
+    "opentelemetry-instrumentation-express": "^0.41.0"
+  }
+}
