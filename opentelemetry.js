@@ -7,7 +7,6 @@ const { registerInstrumentations } = require('@opentelemetry/instrumentation');
 
 // instrumentation libraries
 const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
-const { ExpressInstrumentation } = require('opentelemetry-instrumentation-express');
 const { MongooseInstrumentation } = require('@opentelemetry/instrumentation-mongoose');
 const axios = require('axios');
 
